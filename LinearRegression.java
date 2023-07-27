@@ -16,8 +16,8 @@ public class LinearRegression {
         final List<Double> deviationX = calculateDeviation(averageX, DatasetElement::x);
         final List<Double> deviationY = calculateDeviation(averageY, DatasetElement::y);
         final double sumDeviationProduct = sumDeviationProduct(deviationX, deviationY);
-        final double squaredXDeviations = sumSquaredXDeviations(deviationX);
-        slope = calculateSlope(sumDeviationProduct, squaredXDeviations);
+        final double squaredXDeviation = sumDeviationXSquared(deviationX);
+        slope = calculateSlope(sumDeviationProduct, squaredXDeviation);
         yIntercept = calculateYIntercept(averageX, averageY);
     }
 
@@ -40,7 +40,7 @@ public class LinearRegression {
                 .sum();
     }
 
-    private double sumSquaredXDeviations(final List<Double> deviationX) {
+    private double sumDeviationXSquared(final List<Double> deviationX) {
         return deviationX.parallelStream().mapToDouble(e -> e * e).sum();
     }
 
