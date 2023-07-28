@@ -1,62 +1,56 @@
-import java.util.List;
-import java.util.function.ToDoubleFunction;
-import java.util.stream.IntStream;
-
 public class LinearRegression {
   
-    private final List<DatasetElement> dataset;
-    private final double slope;
-    private final double yIntercept;
+    private double[] x;
+    private double[] y;
 
-    public LinearRegression(final List<DatasetElement> dataset) {
-        validateDataset(dataset);
-        this.dataset = dataset;
-        final double averageX = calculateAverage(DatasetElement::x);
-        final double averageY = calculateAverage(DatasetElement::y);
-        final List<Double> deviationX = calculateDeviation(averageX, DatasetElement::x);
-        final List<Double> deviationY = calculateDeviation(averageY, DatasetElement::y);
-        final double sumDeviationProduct = sumDeviationProduct(deviationX, deviationY);
-        final double squaredXDeviation = sumDeviationXSquared(deviationX);
-        slope = calculateSlope(sumDeviationProduct, squaredXDeviation);
-        yIntercept = calculateYIntercept(averageX, averageY);
+    private int datasetSize;
+  
+    private double slope;
+    private double yIntercept;
+
+    public LinearRegression(final double[] x, final double[] y) {
+        validateAndInitDataset(x, y);
+        learn();
     }
 
-    private void validateDataset(final List<DatasetElement> dataset) {
-        if (dataset == null || dataset.isEmpty()) {
-            throw new IllegalArgumentException("Dataset must not be null nor empty!");
+    private void validateAndInitDataset(final double[] x, final double[] y) {
+        if (x == null || y == null) {
+            throw new IllegalArgumentException("Neither of the parameters can be null!");
         }
+        final int xLength = x.length;
+        if(xLength == 0){
+            throw new IllegalArgumentException("Neither of the parameters can be empty!");
+        }
+        if (xLength != y.length) {
+            throw new IllegalArgumentException("Dataset lengths must match!");
+        }
+        this.x = x;
+        this.y = y;
+        datasetSize = xLength;
     }
 
-    private double calculateAverage(final ToDoubleFunction<DatasetElement> getter) {
-        return dataset.parallelStream().mapToDouble(getter).summaryStatistics().getAverage();
+    private void learn() {
+        double xSum = 0;
+        double ySum = 0;
+        for (int i = 0; i < datasetSize; i++) {
+            xSum += x[i];
+            ySum += y[i];
+        }
+        final double xAverage = xSum / datasetSize;
+        final double yAverage = ySum / datasetSize;
+        double deviationProductSum = 0;
+        double xSquaredDeviationSum = 0;
+        for (int i = 0; i < datasetSize; i++) {
+            final double xDeviation = x[i] - xAverage;
+            deviationProductSum = xDeviation * (y[i] - yAverage);
+            xSquaredDeviationSum = xDeviation * xDeviation;
+        }
+        slope = deviationProductSum / xSquaredDeviationSum;
+        yIntercept = yAverage - (slope * xAverage);
     }
-
-    private List<Double> calculateDeviation(final double average, final ToDoubleFunction<DatasetElement> getter) {
-        return dataset.parallelStream().mapToDouble(e -> getter.applyAsDouble(e) - average).boxed().toList();
-    }
-
-    private double sumDeviationProduct(final List<Double> deviationX, final List<Double> deviationY) {
-        return IntStream.range(0, dataset.size()).parallel().mapToDouble(i -> deviationX.get(i) * deviationY.get(i))
-                .sum();
-    }
-
-    private double sumDeviationXSquared(final List<Double> deviationX) {
-        return deviationX.parallelStream().mapToDouble(e -> e * e).sum();
-    }
-
-    private double calculateSlope(final double sumDeviationProduct, final double squaredXDeviations) {
-        return sumDeviationProduct / squaredXDeviations;
-    }
-
-    private double calculateYIntercept(final double averageX, final double averageY) {
-        return averageY - (slope * averageX);
-    }
-
+  
     public double predict(final double input) {
         return slope * input + yIntercept;
     }
-
-    public record DatasetElement(double x, double y) {
-    }
-
+  
 }
