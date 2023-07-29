@@ -17,16 +17,15 @@ public class LinearRegression {
         if (x == null || y == null) {
             throw new IllegalArgumentException("Neither of the parameters can be null!");
         }
-        final int xLength = x.length;
-        if(xLength == 0){
+        datasetSize = x.length;
+        if (datasetSize == 0) {
             throw new IllegalArgumentException("Neither of the parameters can be empty!");
         }
-        if (xLength != y.length) {
+        if (datasetSize != y.length) {
             throw new IllegalArgumentException("Dataset lengths must match!");
         }
         this.x = x;
         this.y = y;
-        datasetSize = xLength;
     }
 
     private void learn() {
