@@ -41,8 +41,8 @@ public class LinearRegression {
         double xSquaredDeviationSum = 0;
         for (int i = 0; i < datasetSize; i++) {
             final double xDeviation = x[i] - xAverage;
-            deviationProductSum = xDeviation * (y[i] - yAverage);
-            xSquaredDeviationSum = xDeviation * xDeviation;
+            deviationProductSum += xDeviation * (y[i] - yAverage);
+            xSquaredDeviationSum += xDeviation * xDeviation;
         }
         slope = deviationProductSum / xSquaredDeviationSum;
         yIntercept = yAverage - (slope * xAverage);
