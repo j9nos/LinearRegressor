@@ -1,4 +1,4 @@
-public class LinearRegression {
+public class LinearRegressor {
   
     private double[] x;
     private double[] y;
@@ -8,7 +8,7 @@ public class LinearRegression {
     private double slope;
     private double yIntercept;
 
-    public LinearRegression(final double[] x, final double[] y) {
+    public LinearRegressor(final double[] x, final double[] y) {
         validateAndInitDataset(x, y);
         learn();
     }
